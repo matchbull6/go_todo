@@ -1,0 +1,7 @@
+*.exe
+/go_todo
+*.test
+*.out
+
+.idea/
+.vscode/
