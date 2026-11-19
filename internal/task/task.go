@@ -60,7 +60,7 @@ type Task struct {
 
 // List is the stored task list. IDs are never reused.
 type List struct {
-	NextID int    `json:"next_id"`
+	LastID int    `json:"last_id"`
 	Tasks  []Task `json:"tasks"`
 }
 
@@ -72,8 +72,8 @@ func (l *List) Add(title string, p Priority, now time.Time) (Task, error) {
 	if title == "" {
 		return Task{}, ErrEmptyTitle
 	}
-	l.NextID++
-	task := Task{ID: l.NextID, Title: title, Priority: p, CreatedAt: now}
+	l.LastID++
+	task := Task{ID: l.LastID, Title: title, Priority: p, CreatedAt: now}
 	l.Tasks = append(l.Tasks, task)
 	return task, nil
 }
