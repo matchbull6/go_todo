@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newRmCmd() *cobra.Command {
+func newRmCmd(opts *options) *cobra.Command {
 	return &cobra.Command{
 		Use:   "rm <id>",
 		Short: "Delete a task",
@@ -18,12 +18,8 @@ func newRmCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			path, err := defaultTaskFile()
-			if err != nil {
-				return err
-			}
 			var t task.Task
-			err = store.Update(path, func(l *task.List) (err error) {
+			err = store.Update(opts.file, func(l *task.List) (err error) {
 				t, err = l.Delete(id)
 				return err
 			})

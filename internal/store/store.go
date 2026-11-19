@@ -32,9 +32,14 @@ func Load(path string) (task.List, error) {
 // Save writes atomically (temp file + rename), mode 0600.
 func Save(path string, l task.List) (err error) {
 	defer func() {
-		if err != nil {
-			err = fmt.Errorf("store: %w", err)
+		if err == nil {
+			return
 		}
+		// Show the user's path, not the temp file name.
+		if pe, ok := errors.AsType[*fs.PathError](err); ok {
+			err = &fs.PathError{Op: pe.Op, Path: path, Err: pe.Err}
+		}
+		err = fmt.Errorf("store: %w", err)
 	}()
 
 	data, err := json.MarshalIndent(l, "", "  ")

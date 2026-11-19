@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newDoneCmd() *cobra.Command {
+func newDoneCmd(opts *options) *cobra.Command {
 	return &cobra.Command{
 		Use:   "done <id>",
 		Short: "Mark a task as done",
@@ -19,12 +19,8 @@ func newDoneCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			path, err := defaultTaskFile()
-			if err != nil {
-				return err
-			}
 			var t task.Task
-			err = store.Update(path, func(l *task.List) (err error) {
+			err = store.Update(opts.file, func(l *task.List) (err error) {
 				t, err = l.Complete(id, time.Now())
 				return err
 			})

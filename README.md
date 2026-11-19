@@ -28,7 +28,7 @@ The task file is chosen in this order:
 - [x] Commands: `add`, `list`, `done`, `rm`
 - [x] Flags: `--all`, `--priority`
 - [x] Aligned output
-- [ ] Task file choice: `--file`, `TODO_FILE`
+- [x] Task file choice: `--file`, `TODO_FILE`
 - [ ] Tests
 - [ ] Extras: `edit`, `clear`, due dates
 

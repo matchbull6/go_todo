@@ -11,7 +11,6 @@ import (
 
 // Run returns the exit code instead of calling os.Exit, for tests.
 func Run(args []string, stdout, stderr io.Writer) int {
-	// TODO(stage 3): --file -> TODO_FILE -> ~/.go_todo.json.
 	cmd := newRootCmd()
 	cmd.SetArgs(args)
 	cmd.SetOut(stdout)
@@ -23,12 +22,24 @@ func Run(args []string, stdout, stderr io.Writer) int {
 	return 0
 }
 
-func defaultTaskFile() (string, error) {
-	dir, err := os.UserHomeDir()
+// options are shared by all commands; file is set from --file
+// and resolved to the final path before any command runs.
+type options struct {
+	file string
+}
+
+func resolveTaskFile(flag string) (string, error) {
+	if flag != "" {
+		return flag, nil
+	}
+	if env := os.Getenv("TODO_FILE"); env != "" {
+		return env, nil
+	}
+	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(dir, ".go_todo.json"), nil
+	return filepath.Join(home, ".go_todo.json"), nil
 }
 
 func parseID(s string) (int, error) {

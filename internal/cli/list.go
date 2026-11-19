@@ -11,18 +11,14 @@ import (
 
 const dateLayout = "02 Jan 15:04"
 
-func newListCmd() *cobra.Command {
+func newListCmd(opts *options) *cobra.Command {
 	var all bool
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "List tasks",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			path, err := defaultTaskFile()
-			if err != nil {
-				return err
-			}
-			l, err := store.Load(path)
+			l, err := store.Load(opts.file)
 			if err != nil {
 				return err
 			}

@@ -16,7 +16,7 @@ func parsePriorityFlag(s string) (task.Priority, error) {
 	return task.ParsePriority(s)
 }
 
-func newAddCmd() *cobra.Command {
+func newAddCmd(opts *options) *cobra.Command {
 	var priority string
 	cmd := &cobra.Command{
 		Use:   "add <title>",
@@ -28,12 +28,8 @@ func newAddCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			path, err := defaultTaskFile()
-			if err != nil {
-				return err
-			}
 			var t task.Task
-			err = store.Update(path, func(l *task.List) (err error) {
+			err = store.Update(opts.file, func(l *task.List) (err error) {
 				t, err = l.Add(title, prio, time.Now())
 				return err
 			})
