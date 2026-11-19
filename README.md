@@ -29,7 +29,7 @@ The task file is chosen in this order:
 - [x] Flags: `--all`, `--priority`
 - [x] Aligned output
 - [x] Task file choice: `--file`, `TODO_FILE`
-- [ ] Tests
+- [x] Tests
 - [ ] Extras: `edit`, `clear`, due dates
 
 ## Build
