@@ -25,9 +25,10 @@ The task file is chosen in this order:
 
 - [x] Task model and JSON storage
 - [x] Atomic save
-- [ ] Commands: `add`, `list`, `done`, `rm`
-- [ ] Flags: `--file`, `--all`, `--priority`
-- [ ] Aligned output
+- [x] Commands: `add`, `list`, `done`, `rm`
+- [x] Flags: `--all`, `--priority`
+- [x] Aligned output
+- [ ] Task file choice: `--file`, `TODO_FILE`
 - [ ] Tests
 - [ ] Extras: `edit`, `clear`, due dates
 

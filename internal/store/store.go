@@ -62,3 +62,15 @@ func Save(path string, l task.List) (err error) {
 	}
 	return os.Rename(tmp.Name(), path)
 }
+
+// Update loads the list, lets fn change it and saves it, unless fn fails.
+func Update(path string, fn func(l *task.List) error) error {
+	l, err := Load(path)
+	if err != nil {
+		return err
+	}
+	if err := fn(&l); err != nil {
+		return err
+	}
+	return Save(path, l)
+}

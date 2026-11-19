@@ -7,15 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	"text/tabwriter"
-	"time"
-
-	"github.com/matchbull6/go_todo/internal/store"
-	"github.com/matchbull6/go_todo/internal/task"
-	"github.com/spf13/cobra"
 )
-
-const dateLayout = "02 Jan 15:04"
 
 func main() {
 	os.Exit(run(os.Args[1:], os.Stdout, os.Stderr))
@@ -35,164 +27,18 @@ func run(args []string, stdout, stderr io.Writer) int {
 	return 0
 }
 
-func newRootCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:           "go_todo",
-		Short:         "A terminal task manager",
-		SilenceUsage:  true,
-		SilenceErrors: true,
-	}
-	cmd.AddCommand(newAddCmd())
-	cmd.AddCommand(newDoneCmd())
-	cmd.AddCommand(newRmCmd())
-	cmd.AddCommand(newListCmd())
-	return cmd
-}
-
-func newAddCmd() *cobra.Command {
-	return &cobra.Command{
-		Use:   "add <title>",
-		Short: "Add a task",
-		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			title := args[0]
-			path, err := defaultPath()
-			if err != nil {
-				return err
-			}
-			l, err := store.Load(path)
-			if err != nil {
-				return err
-			}
-			t, err := l.Add(title, task.None, time.Now())
-			if err != nil {
-				return err
-			}
-			if err := store.Save(path, l); err != nil {
-				return err
-			}
-			fmt.Fprintf(cmd.OutOrStdout(), "Added task %d: %s\n", t.ID, t.Title)
-			return nil
-		},
-	}
-}
-
-func newDoneCmd() *cobra.Command {
-	return &cobra.Command{
-		Use:   "done <id>",
-		Short: "Mark a task as done",
-		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := strconv.Atoi(args[0])
-			if err != nil {
-				return fmt.Errorf("invalid task id %q", args[0])
-			}
-			path, err := defaultPath()
-			if err != nil {
-				return err
-			}
-			l, err := store.Load(path)
-			if err != nil {
-				return err
-			}
-			t, err := l.Complete(id, time.Now())
-			if err != nil {
-				return err
-			}
-			if err := store.Save(path, l); err != nil {
-				return err
-			}
-			fmt.Fprintf(cmd.OutOrStdout(), "Completed task %d: %s\n", t.ID, t.Title)
-			return nil
-		},
-	}
-}
-
-func newRmCmd() *cobra.Command {
-	return &cobra.Command{
-		Use:   "rm <id>",
-		Short: "Delete a task",
-		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := strconv.Atoi(args[0])
-			if err != nil {
-				return fmt.Errorf("invalid task id %q", args[0])
-			}
-			path, err := defaultPath()
-			if err != nil {
-				return err
-			}
-			l, err := store.Load(path)
-			if err != nil {
-				return err
-			}
-			t, err := l.Delete(id)
-			if err != nil {
-				return err
-			}
-			if err := store.Save(path, l); err != nil {
-				return err
-			}
-			fmt.Fprintf(cmd.OutOrStdout(), "Deleted task %d: %s\n", t.ID, t.Title)
-			return nil
-		},
-	}
-}
-
-func newListCmd() *cobra.Command {
-	return &cobra.Command{
-		Use:   "list",
-		Short: "List pending tasks",
-		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			// --all flag
-			showAll := false
-
-			path, err := defaultPath()
-			if err != nil {
-				return err
-			}
-			l, err := store.Load(path)
-			if err != nil {
-				return err
-			}
-
-			var shown []task.Task
-			for _, t := range l.Tasks {
-				if !t.Done || showAll {
-					shown = append(shown, t)
-				}
-			}
-			if len(shown) == 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), "No tasks")
-				return nil
-			}
-
-			w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 2, ' ', 0)
-			if showAll {
-				fmt.Fprint(w, "DONE\t")
-			}
-			fmt.Fprintln(w, "ID\tPRIORITY\tCREATED\tTITLE")
-			for _, t := range shown {
-				if showAll {
-					done := ""
-					if t.Done {
-						done = "✓"
-					}
-					fmt.Fprintf(w, "%s\t", done)
-				}
-				fmt.Fprintf(w, "%d\t%s\t%s\t%s\n",
-					t.ID, t.Priority, t.CreatedAt.Format(dateLayout), t.Title)
-			}
-			return w.Flush()
-		},
-	}
-}
-
-func defaultPath() (string, error) {
+func defaultTaskFile() (string, error) {
 	dir, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
 	}
 	return filepath.Join(dir, ".go_todo.json"), nil
+}
+
+func parseID(s string) (int, error) {
+	id, err := strconv.Atoi(s)
+	if err != nil {
+		return 0, fmt.Errorf("invalid task id %q", s)
+	}
+	return id, nil
 }
